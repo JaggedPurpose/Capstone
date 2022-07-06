@@ -6,19 +6,22 @@ import mimetypes
 import os
 from docx2pdf import convert
 import hashlib
-
+from fpdf import FPDF
 
 name_pattern = r"([a-zA-Z]+)\s?([a-zA-Z]+\s)([a-zA-Z]+)"
 email_pattern = r"(\d+)?(\w+)@(\w+)\.(\w+)"
 
 
 def main():
-    doc = input("Example: C:\<user>\Desktop\\file.docx"
+    doc = input("Example: C:\\Users\junwo\PycharmProjects\\NSAA\Capstone\\test5.docx"
                 "\nPlease provide the .docx file to be converted into a PDF as the above example: ")
     convert_doc(doc)
     # print(md5sum(doc))
     # print(name_checksum(requester))
-    total_checksum(md5sum(doc), name_checksum())
+    # total_checksum(md5sum(doc), name_checksum())
+    doc_sum = md5sum(doc)
+    total_sum = total_checksum(doc_sum, name_checksum())
+    watermarker_pdf(doc_sum, total_sum, doc)
 
 
 def convert_doc(doc_file):
@@ -58,14 +61,28 @@ def name_checksum():
 def total_checksum(pdf_md5, name_md5):
     # turn the return values from the arguments into a string
     pdf_sum = f"{pdf_md5}"
-    print(pdf_sum) # this can be un-commented to check the md5sum of the pdf file
+    print(f"MD5 checksum of the PDF: {pdf_sum}") # this can be un-commented to check the md5sum of the pdf file
     name_sum = f"{name_md5}"
-    print(name_sum) # this can be un-commented to check the md5sum of the requester's name
+    print(f'MD5 checksum of the requester: {name_sum}') # this can be un-commented to check the md5sum of the requester's name
     # set a new variable that will take the str of above checksums
     total_sum = f"{pdf_sum}{name_sum}"
     checksum = hashlib.md5(total_sum.encode())
-    print(checksum.hexdigest())
+    print(f"Combined MD5 checksum of the PDF and the requester: {checksum.hexdigest()}")
     return checksum.hexdigest()
+
+
+def watermarker_pdf(pdf_md5, total_md5, doc):
+    watermarker_name = os.path.splitext(doc)[0] + "_watermarker.pdf"
+    pdf_sum = f"{pdf_md5}"
+    name_sum = f"{total_md5}"
+    watermarker = FPDF()
+    watermarker.add_page()
+    watermarker.set_font("Times", size=10)
+    watermarker.cell(200, 5, txt=f"{pdf_sum}", ln=1, align='C')
+    watermarker.cell(200, 5, txt=f"{total_md5}", ln=2, align='C')
+    watermarker.output(watermarker_name)
+
+
 
 
 if __name__ == "__main__":
