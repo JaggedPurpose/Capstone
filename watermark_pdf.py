@@ -14,14 +14,14 @@ email_pattern = r"(\d+)?(\w+)@(\w+)\.(\w+)"
 
 def main():
     doc = input("Example: C:\\Users\junwo\PycharmProjects\\NSAA\Capstone\\test5.docx"
-                "\nPlease provide the .docx file to be converted into a PDF as the above example: ")
+                "\nPlease provide the absolute path to the .docx file to be converted into a PDF as the above example: ")
     convert_doc(doc)
     # print(md5sum(doc))
     # print(name_checksum(requester))
     # total_checksum(md5sum(doc), name_checksum())
     doc_sum = md5sum(doc)
     total_sum = total_checksum(doc_sum, name_checksum())
-    watermarker_pdf(doc_sum, total_sum, doc)
+    watermarker_pdf(pdf_md5=doc_sum, total_md5=total_sum, doc_path=doc)
 
 
 def convert_doc(doc_file):
@@ -45,12 +45,14 @@ def md5sum(pdf_file):
 
 def name_checksum():
     requester = input("What is the full name of the of the document requester? You may include the middle name. ")
+    # make sure the name format matches the requested input
     result = re.match(name_pattern, requester)
     if not result:
         print("Please provide the name in a valid format."
               "\nExamples: Junwon Suh, John Christopher Depp, ")
         name_checksum()
-    elif result:
+    # elif result: # if the function looks back even with the correct format, comment out the below and un-comment this
+    else:
         # using hashlib.md5() take in the arg of the function and make sure to encode
         name_sum = hashlib.md5(requester.encode())
         # return the md5sum of the requester
@@ -71,8 +73,8 @@ def total_checksum(pdf_md5, name_md5):
     return checksum.hexdigest()
 
 
-def watermarker_pdf(pdf_md5, total_md5, doc):
-    watermarker_name = os.path.splitext(doc)[0] + "_watermarker.pdf"
+def watermarker_pdf(doc_path, pdf_md5, total_md5):
+    watermarker_name = os.path.splitext(doc_path)[0] + "_watermarker.pdf"
     pdf_sum = f"{pdf_md5}"
     name_sum = f"{total_md5}"
     watermarker = FPDF()
@@ -81,8 +83,7 @@ def watermarker_pdf(pdf_md5, total_md5, doc):
     watermarker.cell(200, 5, txt=f"{pdf_sum}", ln=1, align='C')
     watermarker.cell(200, 5, txt=f"{total_md5}", ln=2, align='C')
     watermarker.output(watermarker_name)
-
-
+    print(f"The watermark PDF can be found at: {watermarker_name}")
 
 
 if __name__ == "__main__":
