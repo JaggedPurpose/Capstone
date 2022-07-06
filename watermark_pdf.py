@@ -8,13 +8,17 @@ from docx2pdf import convert
 import hashlib
 
 
+name_pattern = r"([a-zA-Z]+)\s?([a-zA-Z]+\s)([a-zA-Z]+)"
+email_pattern = r"(\d+)?(\w+)@(\w+)\.(\w+)"
+
+
 def main():
     doc = input("Example: C:\<user>\Desktop\\file.docx"
                 "\nPlease provide the .docx file to be converted into a PDF as the above example: ")
-    requester = input("What is the full name of the document requester? ")
     convert_doc(doc)
-    md5sum(doc)
-    name_checksum(requester)
+    # print(md5sum(doc))
+    # print(name_checksum(requester))
+    total_checksum(md5sum(doc), name_checksum())
 
 
 def convert_doc(doc_file):
@@ -22,7 +26,7 @@ def convert_doc(doc_file):
     pdf_name = os.path.splitext(doc_file)[0] + ".pdf"
     # convert the doc_file to pdf with the pdf extension
     convert(doc_file, pdf_name)
-    print("Docx file has been converted to PDF")
+    print(f"Docx file has been converted to PDF. This can be found at {pdf_name}")
 
 
 def md5sum(pdf_file):
@@ -36,23 +40,31 @@ def md5sum(pdf_file):
         return checksum
 
 
-def name_checksum(name):
-    # using hashlib.md5() take in the arg of the function and make sure to encode
-    name_sum = hashlib.md5(name.encode())
-    # return the md5sum of the requester
-    return name_sum.hexdigest()
+def name_checksum():
+    requester = input("What is the full name of the of the document requester? You may include the middle name. ")
+    result = re.match(name_pattern, requester)
+    if not result:
+        print("Please provide the name in a valid format."
+              "\nExamples: Junwon Suh, John Christopher Depp, ")
+        name_checksum()
+    elif result:
+        # using hashlib.md5() take in the arg of the function and make sure to encode
+        name_sum = hashlib.md5(requester.encode())
+        # return the md5sum of the requester
+        return name_sum.hexdigest()
 
 
 # for total_checksum(), 2 args will be the return values of the md5sum() and name_checksum()
 def total_checksum(pdf_md5, name_md5):
     # turn the return values from the arguments into a string
     pdf_sum = f"{pdf_md5}"
-    # print(pdf_sum) # this can be un-commented to check the md5sum of the pdf file
+    print(pdf_sum) # this can be un-commented to check the md5sum of the pdf file
     name_sum = f"{name_md5}"
-    # print(name_sum) # this can be un-commented to check the md5sum of the requester's name
+    print(name_sum) # this can be un-commented to check the md5sum of the requester's name
     # set a new variable that will take the str of above checksums
     total_sum = f"{pdf_sum}{name_sum}"
     checksum = hashlib.md5(total_sum.encode())
+    print(checksum.hexdigest())
     return checksum.hexdigest()
 
 
