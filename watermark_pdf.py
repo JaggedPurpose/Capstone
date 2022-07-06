@@ -43,5 +43,18 @@ def name_checksum(name):
     return name_sum.hexdigest()
 
 
+# for total_checksum(), 2 args will be the return values of the md5sum() and name_checksum()
+def total_checksum(pdf_md5, name_md5):
+    # turn the return values from the arguments into a string
+    pdf_sum = f"{pdf_md5}"
+    # print(pdf_sum) # this can be un-commented to check the md5sum of the pdf file
+    name_sum = f"{name_md5}"
+    # print(name_sum) # this can be un-commented to check the md5sum of the requester's name
+    # set a new variable that will take the str of above checksums
+    total_sum = f"{pdf_sum}{name_sum}"
+    checksum = hashlib.md5(total_sum.encode())
+    return checksum.hexdigest()
+
+
 if __name__ == "__main__":
     main()
