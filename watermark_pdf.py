@@ -11,9 +11,10 @@ import hashlib
 def main():
     doc = input("Example: C:\<user>\Desktop\\file.docx"
                 "\nPlease provide the .docx file to be converted into a PDF as the above example: ")
-    requester = input("What is the name of the person requesting for the document? ")
+    requester = input("What is the full name of the document requester? ")
     convert_doc(doc)
-    print(md5sum(doc))
+    md5sum(doc)
+    name_checksum(requester)
 
 
 def convert_doc(doc_file):
@@ -33,6 +34,13 @@ def md5sum(pdf_file):
         file_pdf = pdf.read()
         checksum = hashlib.md5(file_pdf).hexdigest()
         return checksum
+
+
+def name_checksum(name):
+    # using hashlib.md5() take in the arg of the function and make sure to encode
+    name_sum = hashlib.md5(name.encode())
+    # return the md5sum of the requester
+    return name_sum.hexdigest()
 
 
 if __name__ == "__main__":
