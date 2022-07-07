@@ -81,14 +81,14 @@ def total_checksum(pdf_md5, name_md5):
 def watermarker_pdf(doc_path, pdf_md5, total_md5):
     watermarker_name = os.path.splitext(doc_path)[0] + "_watermarker.pdf"
     pdf_sum = f"{pdf_md5}"
-    name_sum = f"{total_md5}"
+    total_sum = f"{total_md5}"
     watermarker = FPDF()
     watermarker.add_page()
     watermarker.set_font("Times", size=10)
     watermarker.cell(200, 5, txt=f"{pdf_sum}", ln=1, align='C')
-    watermarker.cell(200, 5, txt=f"{total_md5}", ln=2, align='C')
+    watermarker.cell(200, 5, txt=f"{total_sum}", ln=2, align='C')
     watermarker.set_text_color(255, 255, 255)
-    watermarker.cell(200, 200, txt=f"{total_md5}", ln=1, align='C')
+    watermarker.cell(200, 200, txt=f"{total_sum} ", ln=1, align='C')
     watermarker.output(watermarker_name)
     print(f"The watermark PDF can be found at: {watermarker_name}")
 
