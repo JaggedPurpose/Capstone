@@ -42,6 +42,7 @@ def convert_doc(doc_file):
                 return f"Docx file has been converted to PDF. This can be found at {pdf_name}"
             elif not os.path.exists(doc_file):
                 print(f"{doc_file} does not exist.")
+                print("Please check if you have provided a valid file with the path")
                 main()
         except FileNotFoundError:
             print("Please try again after getting the correct file and its path")
