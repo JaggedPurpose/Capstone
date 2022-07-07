@@ -27,25 +27,20 @@ def main():
     pdfMerger(doc_file=doc)
     msg = generate(requester=requester, attachment_path=doc)
     send_email(msg, requester)
-    sys.exit(1)
 
 
 def convert_doc(doc_file):
     # Separate the path/file and extension
     pdf_name = os.path.splitext(doc_file)[0] + ".pdf"
     # Check if the file exists
-    while True:
-        try:
-            if os.path.exists(doc_file):
-                # convert the doc_file to pdf with the pdf extension
-                convert(doc_file, pdf_name)
-                return f"Docx file has been converted to PDF. This can be found at {pdf_name}"
-            elif not os.path.exists(doc_file):
-                print(f"{doc_file} does not exist.")
-                main()
-        except FileNotFoundError:
-            print("Please try again after getting the correct file and its path")
-            sys.exit(1)
+    if os.path.exists(doc_file):
+        # convert the doc_file to pdf with the pdf extension
+        convert(doc_file, pdf_name)
+        return f"Docx file has been converted to PDF. This can be found at {pdf_name}"
+    elif not os.path.exists(doc_file):
+        print(f"{doc_file} does not exist.")
+        main()
+
 
 
 def md5sum(pdf_file):
@@ -167,10 +162,11 @@ def send_email(message, requester):
             with smtplib.SMTP(host='smtp.gmail.com', port=587) as mail_server:
                 mail_server.ehlo()
                 mail_server.starttls() # mute if .SMTP_SSL
-                mail_server.login('capstoneproject789@gmail.com', 'CapstoneProject#')
+                mail_server.login('capstoneproject789@gmail.com', '<google app pw here')
                 mail_server.send_message(message)
                 print("Email sent with the attachment")
                 mail_server.quit()
+                sys.exit(1)
         except Exception:
             print(f"Please copy & paste the following to the email manually along with the attachment file."
                   f"Here is the requested document {requester}.\nIf you look above each page, you will see 2 lines of texts; these are done for security measures."
