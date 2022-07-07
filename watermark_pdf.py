@@ -13,7 +13,7 @@ email_pattern = r"(\d+)?(\w+)@(\w+)\.(\w+)"
 
 
 def main():
-    doc = input("Example: C:\\Users\junwo\PycharmProjects\\NSAA\Capstone\\test5.docx"
+    doc = input("Example: C:\\Users\junwo\PycharmProjects\\NSAA\Capstone\\test.docx"
                 "\nPlease provide the absolute path to the .docx file to be converted into a PDF as the above example: ")
     convert_doc(doc)
     # print(md5sum(doc))
@@ -27,9 +27,14 @@ def main():
 def convert_doc(doc_file):
     # Separate the path/file and extension
     pdf_name = os.path.splitext(doc_file)[0] + ".pdf"
-    # convert the doc_file to pdf with the pdf extension
-    convert(doc_file, pdf_name)
-    print(f"Docx file has been converted to PDF. This can be found at {pdf_name}")
+    # Check if the file exists
+    if os.path.exists(doc_file):
+        # convert the doc_file to pdf with the pdf extension
+        convert(doc_file, pdf_name)
+        print(f"Docx file has been converted to PDF. This can be found at {pdf_name}")
+    elif not os.path.exists(doc_file):
+        print("Please check if you have provided a valid file with the path")
+        main()
 
 
 def md5sum(pdf_file):
@@ -82,6 +87,8 @@ def watermarker_pdf(doc_path, pdf_md5, total_md5):
     watermarker.set_font("Times", size=10)
     watermarker.cell(200, 5, txt=f"{pdf_sum}", ln=1, align='C')
     watermarker.cell(200, 5, txt=f"{total_md5}", ln=2, align='C')
+    watermarker.set_text_color(255, 255, 255)
+    watermarker.cell(200, 200, txt=f"{total_md5}", ln=1, align='C')
     watermarker.output(watermarker_name)
     print(f"The watermark PDF can be found at: {watermarker_name}")
 
