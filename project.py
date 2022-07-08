@@ -32,15 +32,18 @@ def main():
 def convert_doc(doc_file):
     # Separate the path/file and extension
     pdf_name = os.path.splitext(doc_file)[0] + ".pdf"
-    # Check if the file exists
-    if os.path.exists(doc_file):
-        # convert the doc_file to pdf with the pdf extension
-        convert(doc_file, pdf_name)
-        return f"Docx file has been converted to PDF. This can be found at {pdf_name}"
-    elif not os.path.exists(doc_file):
-        print(f"{doc_file} does not exist.")
-        main()
-
+    while True:
+        try:
+            # Check if the file exists
+            if os.path.exists(doc_file):
+                # convert the doc_file to pdf with the pdf extension
+                return convert(doc_file, pdf_name)
+            elif not os.path.exists(doc_file):
+                print(f"{doc_file} does not exist.")
+                main()
+        except AssertionError:
+            print("Please provide a proper path.")
+            main()
 
 
 def md5sum(pdf_file):
