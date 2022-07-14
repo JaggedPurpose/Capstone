@@ -165,13 +165,14 @@ def send_email(message, requester):
             with smtplib.SMTP(host='smtp.gmail.com', port=587) as mail_server:
                 mail_server.ehlo()
                 mail_server.starttls() # mute if .SMTP_SSL
-                mail_server.login('capstoneproject789@gmail.com', '<google app pw here')
+                mail_server.login('capstoneproject789@gmail.com', '<google app pw here>')
                 mail_server.send_message(message)
                 print("Email sent with the attachment")
                 mail_server.quit()
                 sys.exit(1)
         except Exception:
-            print(f"Please copy & paste the following to the email manually along with the attachment file."
+            print(f"Email failed to send."
+                  f"Please copy & paste the following to the email manually along with the attachment file."
                   f"Here is the requested document {requester}.\nIf you look above each page, you will see 2 lines of texts; these are done for security measures."
                   f"\nThe first line you see is the MD5 checksum of the PDF file, guaranteeing the integrity of the document, that nothing has been changed."
                   f"\nThe second line is the MD5 checksum, made by combining both the PDF and your name; both these checksums are very unique, allowing the corporate to keep track of the "
