@@ -25,9 +25,8 @@ def main():
     total_sum = total_checksum(doc_sum, name_checksum(requester))
     watermarker_pdf(pdf_md5=doc_sum, total_md5=total_sum, doc_path=doc)
     pdfMerger(doc_file=doc)
-    msg = generate(requester=requester, attachment_path=doc)
-    send_email(msg, requester)
-
+    msg = generate(requester=requester, attachment_path=doc, pdf_file=doc_sum, total_md5=total_sum)
+    send_email(message=msg, requester=requester, pdf_file=doc_sum, total_md5=total_sum)
 
 def convert_doc(doc_file):
     # Separate the path/file and extension
@@ -122,7 +121,7 @@ def pdfMerger(doc_file):
     print(f"Requested document has been watermarked and can be found at: {os.path.dirname(doc_file)}\\")
 
 
-def generate(requester, attachment_path):
+def generate(requester, attachment_path, pdf_file, total_md5):
     # Create an email with an attachment
     attachment = os.path.splitext(attachment_path)[0] + "_watermarked.pdf"
     recipient = input("What is the email address of the requester? ")
@@ -137,8 +136,8 @@ def generate(requester, attachment_path):
         message["To"] = recipient
         message["Subject"] = title
         body = f"Here is the requested document {requester}. \nIf you look above each page, you will see 2 lines of texts; these are done for security measures. " \
-               f"\nThe first line you see is the MD5 checksum of the PDF file, guaranteeing the integrity of the document, that nothing has been changed." \
-               f"\nThe second line is the MD5 checksum, made by combining both the PDF and your name; both these checksums are very unique, allowing the  corporate to keep track of the " \
+               f"\nThe first line, \"{pdf_file}\", you see is the MD5 checksum of the PDF file, guaranteeing the integrity of the document, that nothing has been changed." \
+               f"\nThe second line, \"{total_md5}\", is the MD5 checksum, made by combining both the PDF and your name; both these checksums are very unique, allowing the  corporate to keep track of the " \
                f"potential leakage of data." \
                f"\n\n" \
                f"If you need another documents, please let me know." \
@@ -147,6 +146,7 @@ def generate(requester, attachment_path):
                f"\nJ. S." \
 
         message.set_content(body)
+
 
         if attachment_path != "":
             mime_type, _ = mimetypes.guess_type(attachment)
@@ -158,24 +158,24 @@ def generate(requester, attachment_path):
         return message
 
 
-def send_email(message, requester):
+def send_email(message, requester, pdf_file, total_md5):
     while True:
         try:
         # with smtplib.SMTP_SSL(host='smtp.gmail.com', port=465) as mail_server:
             with smtplib.SMTP(host='smtp.gmail.com', port=587) as mail_server:
                 mail_server.ehlo()
                 mail_server.starttls() # mute if .SMTP_SSL
-                mail_server.login('capstoneproject789@gmail.com', '<google app pw here>')
+                mail_server.login('capstoneproject789@gmail.com', 'esucqcyjgbnfxpws')
                 mail_server.send_message(message)
-                print("Email sent with the attachment")
+                print("Email sent with the attachment.")
                 mail_server.quit()
                 sys.exit(1)
         except Exception:
-            print(f"Email failed to send."
+            print(f"Email failed to send.\n"
                   f"Please copy & paste the following to the email manually along with the attachment file."
                   f"Here is the requested document {requester}.\nIf you look above each page, you will see 2 lines of texts; these are done for security measures."
-                  f"\nThe first line you see is the MD5 checksum of the PDF file, guaranteeing the integrity of the document, that nothing has been changed."
-                  f"\nThe second line is the MD5 checksum, made by combining both the PDF and your name; both these checksums are very unique, allowing the corporate to keep track of the "
+                  f"\nThe first line, \"{pdf_file}\", you see is the MD5 checksum of the PDF file, guaranteeing the integrity of the document, that nothing has been changed."
+                  f"\nThe second line, \"{total_md5}\" is the MD5 checksum, made by combining both the PDF and your name; both these checksums are very unique, allowing the corporate to keep track of the "
                   f"potential leakage of any proprietary document."
                   f"\n\n"
                   f"If you need another documents, please let me know."
