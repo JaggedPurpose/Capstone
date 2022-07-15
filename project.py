@@ -9,6 +9,7 @@ from docx2pdf import convert
 import hashlib
 from fpdf import FPDF
 from PyPDF2 import PdfFileReader, PdfFileWriter
+from getpass4 import getpass
 
 name_pattern = r"([a-zA-Z]+)\s?([a-zA-Z]+\s)([a-zA-Z]+)"
 email_pattern = r"(\d+)?(\w+)@(\w+)\.(\w+)"
@@ -16,7 +17,7 @@ email_pattern = r"(\d+)?(\w+)@(\w+)\.(\w+)"
 
 def main():
     print("This script is strictly for converting \".docx\" into a pdf with watermarking.")
-    doc = input("Example: C:\\Users\junwo\PycharmProjects\\NSAA\Capstone\\test.docx"
+    doc = input("Example: C:\\Users\\junwo\\PycharmProjects\\NSAA\Capstone\\test.docx"
                 "\nPlease provide the absolute path to the .docx file to be converted into a PDF as the above example: ")
     convert_doc(doc)
     print(f"Docx file has been converted to PDF. This can be found at {os.path.splitext(doc)[0]}.pdf")
@@ -27,6 +28,7 @@ def main():
     pdfMerger(doc_file=doc)
     msg = generate(requester=requester, attachment_path=doc, pdf_file=doc_sum, total_md5=total_sum)
     send_email(message=msg, requester=requester, pdf_file=doc_sum, total_md5=total_sum)
+
 
 def convert_doc(doc_file):
     # Separate the path/file and extension
@@ -95,8 +97,8 @@ def watermarker_pdf(doc_path, pdf_md5, total_md5):
     watermarker.cell(200, -30, txt=f"{total_sum}", ln=2, align='C')
     watermarker.set_text_color(255, 255, 255)
     watermarker.cell(200, 200, txt=f"{total_sum} ", ln=1, align='C')
-    watermarker.output(watermarker_name)
-    print(f"The watermark PDF can be found at: {watermarker_name}")
+    print(f"The watermarker PDF can be found at: {watermarker_name}")
+    return watermarker.output(watermarker_name)
 
 
 def pdfMerger(doc_file):
@@ -117,8 +119,8 @@ def pdfMerger(doc_file):
         watermarked.addPage(page)
         with open(f"{os.path.splitext(doc_file)[0]}_watermarked.pdf", 'wb') as Marked:
             watermarked.write(Marked)
-
-    print(f"Requested document has been watermarked and can be found at: {os.path.dirname(doc_file)}\\")
+            print(f"Requested document has been watermarked and can be found at: {os.path.dirname(doc_file)}\\")
+            return Marked
 
 
 def generate(requester, attachment_path, pdf_file, total_md5):
@@ -140,13 +142,12 @@ def generate(requester, attachment_path, pdf_file, total_md5):
                f"\nThe second line, \"{total_md5}\", is the MD5 checksum, made by combining both the PDF and your name; both these checksums are very unique, allowing the  corporate to keep track of the " \
                f"potential leakage of data." \
                f"\n\n" \
-               f"If you need another documents, please let me know." \
+               f"If you need another document, please let me know." \
                f"\nHave a good day!" \
                f"\nSincerely," \
                f"\nJ. S." \
 
         message.set_content(body)
-
 
         if attachment_path != "":
             mime_type, _ = mimetypes.guess_type(attachment)
@@ -165,7 +166,9 @@ def send_email(message, requester, pdf_file, total_md5):
             with smtplib.SMTP(host='smtp.gmail.com', port=587) as mail_server:
                 mail_server.ehlo()
                 mail_server.starttls() # mute if .SMTP_SSL
-                mail_server.login('capstoneproject789@gmail.com', 'esucqcyjgbnfxpws')
+                email = input("Enter your email address: ")
+                password = getpass("Enter your password: ")
+                mail_server.login(email, password)
                 mail_server.send_message(message)
                 print("Email sent with the attachment.")
                 mail_server.quit()
@@ -178,7 +181,7 @@ def send_email(message, requester, pdf_file, total_md5):
                   f"\nThe second line, \"{total_md5}\" is the MD5 checksum, made by combining both the PDF and your name; both these checksums are very unique, allowing the corporate to keep track of the "
                   f"potential leakage of any proprietary document."
                   f"\n\n"
-                  f"If you need another documents, please let me know."
+                  f"If you need another document, please let me know."
                   f"\nHave a good day!"
                   f"\nSincerely,"
                   f"\nJ. S.")
