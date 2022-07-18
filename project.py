@@ -31,6 +31,7 @@ def main():
 
 
 def convert_doc(doc_file):
+    # https://pypi.org/project/docx2pdf/
     # Separate the path/file and extension
     pdf_name = os.path.splitext(doc_file)[0] + ".pdf"
     while True:
@@ -48,6 +49,7 @@ def convert_doc(doc_file):
 
 
 def md5sum(pdf_file):
+    # https://stackoverflow.com/questions/16874598/how-do-i-calculate-the-md5-checksum-of-a-file-in-python
     # call out the correct file, which in this case would be the converted pdf
     pdf_file = os.path.splitext(pdf_file)[0] + ".pdf"
     # open the pdf file
@@ -59,6 +61,7 @@ def md5sum(pdf_file):
 
 
 def name_checksum(requester):
+    # https://www.geeksforgeeks.org/md5-hash-python/
     # make sure the name format matches the requested input
     result = re.match(name_pattern, requester)
     if not result:
@@ -87,6 +90,7 @@ def total_checksum(pdf_md5, name_md5):
 
 
 def watermarker_pdf(doc_path, pdf_md5, total_md5):
+    # https://www.geeksforgeeks.org/convert-text-and-text-file-to-pdf-using-python/
     watermarker_name = os.path.splitext(doc_path)[0] + "_watermarker.pdf"
     pdf_sum = f"{pdf_md5}"
     total_sum = f"{total_md5}"
@@ -95,7 +99,7 @@ def watermarker_pdf(doc_path, pdf_md5, total_md5):
     watermarker.set_font("Times", size=10)
     watermarker.cell(200, 40, txt=f"{pdf_sum}", ln=1, align='C')
     watermarker.cell(200, -30, txt=f"{total_sum}", ln=2, align='C')
-    watermarker.set_text_color(255, 255, 255)
+    watermarker.set_text_color(255, 255, 255) #https://pyfpdfbook.wordpress.com/2015/03/17/text-color-using-set_text_color/
     watermarker.cell(200, 200, txt=f"{total_sum} ", ln=1, align='C')
     print(f"The watermarker PDF can be found at: {watermarker_name}")
     return watermarker.output(watermarker_name)
@@ -110,15 +114,17 @@ def pdfMerger(doc_file):
     # create a PDF writer
     watermarked = PdfFileWriter()
     # loop through the pages of the pdf_file and grab pages
-    for pages in range(pdf_file.getNumPages()):
+    # https://www.codespeedy.com/how-to-add-watermark-to-a-pdf-file-using-python/
+    for pages in range(pdf_file.getNumPages()): # https://pypdf2.readthedocs.io/en/latest/modules/PdfReader.html?highlight=numpage#PyPDF2.PdfReader.getNumPages
         # grab each page from above
         page = pdf_file.getPage(pages)
         # merge each page with the watermarker
-        page.mergePage(watermarker.getPage(0))
+        page.mergePage(watermarker.getPage(0)) # https://pypdf2.readthedocs.io/en/latest/modules/PageObject.html?highlight=mergepage#PyPDF2._page.PageObject.mergePage
         # add the merged page to the writer
-        watermarked.addPage(page)
+        watermarked.addPage(page) # https://pypdf2.readthedocs.io/en/latest/modules/PdfWriter.html?highlight=addPAge#PyPDF2.PdfWriter.addPage
+        # https://gist.github.com/Geekfish/a4fe4efd59e158f55ca5c76479831c8d
         with open(f"{os.path.splitext(doc_file)[0]}_watermarked.pdf", 'wb') as Marked:
-            watermarked.write(Marked)
+            watermarked.write(Marked) # https://pypdf2.readthedocs.io/en/latest/modules/PdfWriter.html?highlight=write#PyPDF2.PdfWriter.write
             print(f"Requested document has been watermarked and can be found at: {os.path.dirname(doc_file)}\\")
             return Marked
 
@@ -162,6 +168,8 @@ def generate(requester, attachment_path, pdf_file, total_md5):
 
 
 def send_email(message, requester, pdf_file, total_md5):
+    # https://realpython.com/python-send-email/
+    # https://stackabuse.com/how-to-send-emails-with-gmail-using-python/
     while True:
         try:
         # with smtplib.SMTP_SSL(host='smtp.gmail.com', port=465) as mail_server:
