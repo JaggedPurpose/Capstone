@@ -136,7 +136,7 @@ def generate(requester, attachment_path, pdf_file, total_md5):
     result = re.match(email_pattern, recipient)
     if not result:
         print("Please provide a valid email address.")
-        generate(recipient, attachment_path)
+        generate(recipient, attachment_path, pdf_file, total_md5)
     elif result:
         title = input("What is the subject of this email? ")
         if title == "":
