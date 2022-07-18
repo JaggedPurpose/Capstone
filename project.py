@@ -133,6 +133,8 @@ def generate(requester, attachment_path, pdf_file, total_md5):
         generate(recipient, attachment_path)
     elif result:
         title = input("What is the subject of this email? ")
+        if title == "":
+            title = f"Requested Document for {requester}"
         message = email.message.EmailMessage()
         message["From"] = "junwonsuh@gmail.com"
         message["To"] = recipient
