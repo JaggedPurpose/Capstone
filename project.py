@@ -125,8 +125,8 @@ def pdfMerger(doc_file):
         # https://gist.github.com/Geekfish/a4fe4efd59e158f55ca5c76479831c8d
         with open(f"{os.path.splitext(doc_file)[0]}_watermarked.pdf", 'wb') as Marked:
             watermarked.write(Marked) # https://pypdf2.readthedocs.io/en/latest/modules/PdfWriter.html?highlight=write#PyPDF2.PdfWriter.write
-            print(f"Requested document has been watermarked and can be found at: {os.path.dirname(doc_file)}\\")
-            return Marked
+    print(f"Requested document has been watermarked and can be found at: {os.path.dirname(doc_file)}\\")
+    return Marked
 
 
 def generate(requester, attachment_path, pdf_file, total_md5):
