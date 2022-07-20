@@ -24,7 +24,7 @@ def main():
     doc_hash = md5hash(doc)
     requester = input("What is the full name of the of the document requester? You may include the middle name. ")
     total_hashed = total_hash(doc_hash, name_hash(requester))
-    watermarker_pdf(pdf_md5=doc_hash, total_md5=total_hash, doc_path=doc, requester=requester, name_md5=name_hash(requester))
+    watermarker_pdf(pdf_md5=doc_hash, total_md5=total_hashed, doc_path=doc, requester=requester, name_md5=name_hash(requester))
     pdfMerger(doc_file=doc)
     msg = generate(requester=requester, attachment_path=doc, pdf_file=doc_hash, total_md5=total_hashed)
     send_email(message=msg, requester=requester, pdf_file=doc_hash, total_md5=total_hash)
