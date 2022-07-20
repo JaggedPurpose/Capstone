@@ -21,13 +21,13 @@ def main():
                 "\nPlease provide the absolute path to the .docx file to be converted into a PDF as the above example: ")
     convert_doc(doc)
     print(f"Docx file has been converted to PDF. This can be found at {os.path.splitext(doc)[0]}.pdf")
-    doc_sum = md5sum(doc)
+    doc_hash = md5hash(doc)
     requester = input("What is the full name of the of the document requester? You may include the middle name. ")
-    total_sum = total_checksum(doc_sum, name_checksum(requester))
-    watermarker_pdf(pdf_md5=doc_sum, total_md5=total_sum, doc_path=doc)
+    total_hashed = total_hash(doc_hash, name_hash(requester))
+    watermarker_pdf(pdf_md5=doc_hash, total_md5=total_hash, doc_path=doc, requester=requester, name_md5=name_hash(requester))
     pdfMerger(doc_file=doc)
-    msg = generate(requester=requester, attachment_path=doc, pdf_file=doc_sum, total_md5=total_sum)
-    send_email(message=msg, requester=requester, pdf_file=doc_sum, total_md5=total_sum)
+    msg = generate(requester=requester, attachment_path=doc, pdf_file=doc_hash, total_md5=total_hashed)
+    send_email(message=msg, requester=requester, pdf_file=doc_hash, total_md5=total_hash)
 
 
 def convert_doc(doc_file):
@@ -48,7 +48,7 @@ def convert_doc(doc_file):
             main()
 
 
-def md5sum(pdf_file):
+def md5hash(pdf_file):
     # https://stackoverflow.com/questions/16874598/how-do-i-calculate-the-md5-checksum-of-a-file-in-python
     # call out the correct file, which in this case would be the converted pdf
     pdf_file = os.path.splitext(pdf_file)[0] + ".pdf"
@@ -60,47 +60,48 @@ def md5sum(pdf_file):
         return checksum
 
 
-def name_checksum(requester):
+def name_hash(requester):
     # https://www.geeksforgeeks.org/md5-hash-python/
     # make sure the name format matches the requested input
     result = re.match(name_pattern, requester)
     if not result:
         rename = input("Examples: Junwon Suh, John Christopher Depp\nPlease provide the name in a valid format: ")
-        return name_checksum(rename)
+        return name_hash(rename)
     # elif result: # if the function looks back even with the correct format, comment out the below and un-comment this
     else:
         # using hashlib.md5() take in the arg of the function and make sure to encode
-        name_sum = hashlib.md5(requester.encode())
+        hashed_name = hashlib.md5(requester.encode())
         # return the md5sum of the requester
-        return name_sum.hexdigest()
+        return hashed_name.hexdigest()
 
 
 # for total_checksum(), 2 args will be the return values of the md5sum() and name_checksum()
-def total_checksum(pdf_md5, name_md5):
+def total_hash(pdf_md5, name_md5):
     # turn the return values from the arguments into a string
-    pdf_sum = f"{pdf_md5}"
-    print(f"MD5 checksum of the PDF: {pdf_sum}") # this can be un-commented to check the md5sum of the pdf file
-    name_sum = f"{name_md5}"
-    print(f'MD5 checksum of the requester: {name_sum}') # this can be un-commented to check the md5sum of the requester's name
+    pdf_hash = f"{pdf_md5}"
+    print(f"MD5 hash of the PDF: {pdf_hash}") # this can be un-commented to check the md5sum of the pdf file
+    hashed_name = f"{name_md5}"
+    print(f'MD5 hash of the requester: {hashed_name}') # this can be un-commented to check the md5sum of the requester's name
     # set a new variable that will take the str of above checksums
-    total_sum = f"{pdf_sum}{name_sum}"
-    checksum = hashlib.md5(total_sum.encode())
-    print(f"Combined MD5 checksum of the PDF and the requester: {checksum.hexdigest()}")
-    return checksum.hexdigest()
+    hashed_total = f"{pdf_hash}{hashed_name}"
+    total_hashed = hashlib.md5(hashed_total.encode())
+    print(f"Combined MD5 hash of the PDF and the requester: {total_hashed.hexdigest()}")
+    return total_hashed.hexdigest()
 
 
-def watermarker_pdf(doc_path, pdf_md5, total_md5):
+def watermarker_pdf(doc_path, pdf_md5, total_md5, requester, name_md5):
     # https://www.geeksforgeeks.org/convert-text-and-text-file-to-pdf-using-python/
     watermarker_name = os.path.splitext(doc_path)[0] + "_watermarker.pdf"
-    pdf_sum = f"{pdf_md5}"
-    total_sum = f"{total_md5}"
+    pdf_hash = f"{pdf_md5}"
+    total_hashed = f"{total_md5}"
     watermarker = FPDF()
     watermarker.add_page()
     watermarker.set_font("Times", size=10)
-    watermarker.cell(200, 40, txt=f"{pdf_sum}", ln=1, align='C')
-    watermarker.cell(200, -30, txt=f"{total_sum}", ln=2, align='C')
+    watermarker.cell(200, 40, txt=f"{pdf_hash}", ln=1, align='C')
+    watermarker.cell(200, -30, txt=f"{total_hashed}", ln=2, align='C')
     watermarker.set_text_color(255, 255, 255) #https://pyfpdfbook.wordpress.com/2015/03/17/text-color-using-set_text_color/
-    watermarker.cell(200, 200, txt=f"{total_sum} ", ln=1, align='C')
+    watermarker.cell(200, 200, txt=f"{total_hashed} ", ln=1, align='C')
+    watermarker.cell(200, -100, txt=f"{requester}: ", ln=2, align='C')
     print(f"The watermarker PDF can be found at: {watermarker_name}")
     return watermarker.output(watermarker_name)
 
@@ -146,8 +147,8 @@ def generate(requester, attachment_path, pdf_file, total_md5):
         message["To"] = recipient
         message["Subject"] = title
         body = f"Here is the requested document {requester}. \nIf you look above each page, you will see 2 lines of texts; these are done for security measures. " \
-               f"\nThe first line, \"{pdf_file}\", you see is the MD5 checksum of the PDF file, guaranteeing the integrity of the document, that nothing has been changed." \
-               f"\nThe second line, \"{total_md5}\", is the MD5 checksum, made by combining both the PDF and your name; both these checksums are very unique, allowing the  corporate to keep track of the " \
+               f"\nThe first line, \"{pdf_file}\", you see is the MD5 hash of the PDF file, guaranteeing the integrity of the document, that nothing has been changed." \
+               f"\nThe second line, \"{total_md5}\", is the MD5 hash, made by combining both the PDF and your name; both these checksums are very unique, allowing the  corporate to keep track of the " \
                f"potential leakage of data." \
                f"\n\n" \
                f"If you need another document, please let me know." \
@@ -187,8 +188,8 @@ def send_email(message, requester, pdf_file, total_md5):
             print(f"Email failed to send.\n"
                   f"Please copy & paste the following to the email manually along with the attachment file."
                   f"Here is the requested document {requester}.\nIf you look above each page, you will see 2 lines of texts; these are done for security measures."
-                  f"\nThe first line, \"{pdf_file}\", you see is the MD5 checksum of the PDF file, guaranteeing the integrity of the document, that nothing has been changed."
-                  f"\nThe second line, \"{total_md5}\" is the MD5 checksum, made by combining both the PDF and your name; both these checksums are very unique, allowing the corporate to keep track of the "
+                  f"\nThe first line, \"{pdf_file}\", you see is the MD5 hash of the PDF file, guaranteeing the integrity of the document, that nothing has been changed."
+                  f"\nThe second line, \"{total_md5}\" is the MD5 hash, made by combining both the PDF and your name; both these checksums are very unique, allowing the corporate to keep track of the "
                   f"potential leakage of any proprietary document."
                   f"\n\n"
                   f"If you need another document, please let me know."
