@@ -101,7 +101,7 @@ def watermarker_pdf(doc_path, pdf_md5, total_md5, requester, name_md5):
     watermarker.cell(200, -30, txt=f"{total_hashed}", ln=2, align='C')
     watermarker.set_text_color(255, 255, 255) #https://pyfpdfbook.wordpress.com/2015/03/17/text-color-using-set_text_color/
     watermarker.cell(200, 200, txt=f"{total_hashed} ", ln=1, align='C')
-    watermarker.cell(200, -100, txt=f"{requester}: ", ln=2, align='C')
+    watermarker.cell(200, -100, txt=f"{requester}: {name_md5}", ln=2, align='C')
     print(f"The watermarker PDF can be found at: {watermarker_name}")
     return watermarker.output(watermarker_name)
 
